@@ -1,12 +1,13 @@
 name: j-quest-compose
 
 services:
+
   j-quest-mysql:
     image: mysql:8.0.44-debian
     container_name: j-quest-mysql
 
     environment:
-      MYSQL_TOOR_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: projet_quest
 
     networks:
@@ -17,7 +18,7 @@ services:
       - jquest_db_data:/var/lib/mysql
 
     healthcheck:
-      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       timeout: 10s
       retries: 10
 
@@ -48,15 +49,19 @@ services:
       - j-quest-boot
 
     ports:
-      - 9000:80
+      - "9000:80"
 
     networks:
       - j-quest-net
 
-  volumes:
-    jquest_db_data:
-      name: jquest-db-data
+# ---- ATTENTION ----
+# Ces sections doivent être EN DEHORS de "services:"
+# -------------------
 
-  networks:
-    j-quest-net:
-      name: j-quest-net
+volumes:
+  jquest_db_data:
+    name: jquest-db-data
+
+networks:
+  j-quest-net:
+    name: j-quest-net
