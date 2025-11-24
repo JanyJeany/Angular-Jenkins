@@ -1,62 +1,62 @@
-name: quest-compose
+name: j-quest-compose
 
 services:
-  mysql:
+  j-quest-mysql:
     image: mysql:8.0.44-debian
-    container_name: quest-mysql
+    container_name: j-quest-mysql
+
     environment:
-      MYSQL_ROOT_PASSWORD: root
+      MYSQL_TOOR_PASSWORD: root
+      MYSQL_DATABASE: projet_quest
+
+    networks:
+      - j-quest-net
+
+    volumes:
+      - ../quest-init/quest-init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - jquest_db_data:/var/lib/mysql
 
     healthcheck:
-      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost"]
       timeout: 10s
       retries: 10
 
-    volumes:
-      - db_data:/var/lib/mysql
-      - ./quest-init.sql:/docker-entrypoint-initdb.d/setup.sql
-
-    networks:
-      - quest
-
-
-  boot:
-    # build:
-      # context: /workspace/SOPRA-250905-GIT/quest-boot
-      # context: ./quest-boot
-
+  j-quest-boot:
     image: ajc/quest:boot
-    container_name: quest-boot
+    container_name: j-quest-boot
 
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://quest-mysql/projet_quest
+      SPRING_DATASOURCE_URL: jdbc:mysql://j-quest-mysql:3306/projet_quest
+      SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: root
 
     depends_on:
-      mysql:
+      j-quest-mysql:
         condition: service_healthy
 
-    networks:
-      - quest
-
-
-  angular:
-    image: ajc/quest:angular
-    container_name: quest-angular
-
     ports:
-      - 80:80
+      - "9020:8080"
+
+    networks:
+      - j-quest-net
+
+  j-quest-angular:
+    image: ajc/quest:angular
+    container_name: j-quest-angular
 
     depends_on:
-      - boot
+      - j-quest-boot
+
+    ports:
+      - 9000:80
 
     networks:
-      - quest
+      - j-quest-net
 
-volumes:
-  db_data:
-    name: quest-db-data
+  volumes:
+    jquest_db_data:
+      name: jquest-db-data
 
-networks:
-  quest:
-    name: quest
+  networks:
+    j-quest-net:
+      name: j-quest-net

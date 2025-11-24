@@ -14,6 +14,8 @@ RUN ./node_modules/.bin/ng build
 FROM nginx:latest
 
 # On copie la configuration NGINX
+WORKDIR /app
+
 COPY nginx-default.conf /etc/nginx/conf.d/default.conf
 
 COPY --from=builder /app/dist/quest-angular/browser /usr/share/nginx/html
